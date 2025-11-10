@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.screen-text {
+  perspective: 400px;
+  transform-style: preserve-3d;
+  height: 40vh;
+  overflow: hidden;
+  position: relative;
+}
+.screen-text > div {
+  font-family: 'Orbitron', sans-serif;
+  color: #ffe81f;
+  text-transform: uppercase;
+  font-weight: 700;
+  position: absolute;
+  width: 100%;
+}
+
+.holo-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.holo-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 0%, rgba(107,229,255,0.08) 45%, transparent 100%);
+}
