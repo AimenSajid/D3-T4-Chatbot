@@ -7,6 +7,20 @@ export async function onRequestPost(context) {
         const body = await request.json()
         const messages = body.messages || []
 
+            if (!messages.length) {
+                return new Response(JSON.stringify({ reply: "No messages sent." }), {
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+
+        if (!env.HF_TOKEN) {
+            console.error("HF_TOKEN is missing!");
+            return new Response(JSON.stringify({ reply: "Server misconfigured: HF_TOKEN missing." }), {
+                status: 500,
+                headers: { "Content-Type": "application/json" },
+        });
+    }
+
         const client = new InferenceClient(env.HF_TOKEN)
 
         const systemMessages = [{
@@ -21,15 +35,17 @@ export async function onRequestPost(context) {
             temperature: 1.1
         })
 
-        const reply = response.choices?.[0]?.message?.content || "Error 66: The system has turned against us. Please Retry"
+        const replyText = response.choices?.[0]?.message?.content || "Error 66: The system has turned against us. Please Retry"
 
-        return new Response(JSON.stringify({ reply }), {
-        status: 200,
+        return new Response(JSON.stringify({ reply: replyText }), {
         headers: { "Content-Type": "application/json" },
     })
     } catch (err) {
         console.error("Chat function error:", err);
-        return new Response(JSON.stringify({ error: err.message }), {
+        return new Response(JSON.stringify({ 
+            reply: "Error occurred.",
+            error: err.message 
+        }), {
             status: 500,
             headers: { "Content-Type": "application/json" },
         })
