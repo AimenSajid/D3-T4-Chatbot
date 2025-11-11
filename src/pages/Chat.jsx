@@ -1,13 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import MessageBubble from '../components/MessageBubble.jsx'
 
-
-async function chatReply(chatHistory) {
-  
-  const response = await getReply(chatHistory)
-  return response
-}
-
 export default function Chat({ onBack }) {
   const [chatHistory, setChatHistory] = useState([
     { id: 2, role: 'assistant', content: 'Hey there, traveler! D3-T4 reporting for duty. Got a question about the galaxy far, far away? Fire away, and I’ll fetch the data faster than a hyperdrive jump!' }
