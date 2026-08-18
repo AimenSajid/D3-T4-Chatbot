@@ -1,8 +1,11 @@
 {
-  "name": "starwars-chatbot-lite",
+  "name": "d3-t4-chatbot",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
+  "description": "A Star Wars lore chatbot running on Cloudflare Workers AI.",
+  "author": "Aimen Sajid",
+  "license": "ISC",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
