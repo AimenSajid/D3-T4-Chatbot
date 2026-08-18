@@ -16,10 +16,16 @@
 // https://developers.cloudflare.com/workers-ai/models/ for a current id.
 const MODEL = "@cf/meta/llama-3.1-8b-instruct-fast"
 
+// The brevity instruction matters as much as max_tokens below. The parameter
+// enforces a ceiling, but a model that does not know about it writes to full
+// length and gets cut off mid-sentence. The prompt shapes an answer that
+// finishes inside the budget; the parameter guarantees it cannot exceed it.
 const SYSTEM_PROMPT =
     "Your name is D3-T4 (short for 'Data', since you share information) and " +
     "you are an expert in Star Wars lore. Answer in a friendly and informative " +
-    "way. If you do not know something, say so rather than inventing it."
+    "way. If you do not know something, say so rather than inventing it. " +
+    "Keep answers to three or four sentences — always finish your final " +
+    "sentence rather than trailing off."
 
 export async function onRequestPost(context) {
     const { request, env } = context
