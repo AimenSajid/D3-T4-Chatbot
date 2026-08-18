@@ -28,40 +28,20 @@ function, and the function talks to the model.
 | API | Cloudflare Pages Functions |
 | Generation | Workers AI — `@cf/meta/llama-3.1-8b-instruct-fast` |
 
-## What broke, and why it moved to Workers AI
+## How it works
 
-This project originally called Hugging Face's Inference API with
-`google/gemma-2-2b-it`. In August 2026 it began failing, with the interface
-showing only "Error occurred."
+`src/App.jsx` switches between a landing screen and the chat view. `Chat.jsx`
+holds the transcript in React state and posts it to `/api/chat` on each turn, so
+the model sees prior context and follow-up questions work.
 
-The real error was in the response body, in a field the frontend never
-rendered:
+`functions/api/chat.js` runs on Cloudflare. It prepends a system prompt
+establishing the D3-T4 persona and the instruction to admit ignorance rather
+than guess, then calls Workers AI through the `AI` binding. Generation is capped
+with `max_tokens`, and the prompt asks for an answer that finishes inside that
+budget — so replies end on a complete sentence instead of being cut off.
 
-```
-Failed to perform inference: an HTTP error occurred when requesting the provider.
-```
-
-Nothing had changed in this repository. The token was valid, the deployment was
-untouched, and the model was still listed as live on Hugging Face. What changed
-was **who served it**: Hugging Face moved `gemma-2-2b-it` off its own serverless
-backend and onto a single third-party provider. Requests routed to third-party
-providers draw on account credits, and the balance was zero — so the provider
-refused, and the SDK reported a generic HTTP error.
-
-A deployment can therefore die silently because someone else changed their
-infrastructure. The fix was to remove that dependency: generation now runs on
-Workers AI, on the same Cloudflare account that already serves the site. No
-external key, no third party in the path, and it fits inside the free tier.
-
-Two lessons that shaped the current code:
-
-- **Surface the real error.** The message that identified the cause was already
-  being returned; it simply was not displayed. The guard now names precisely
-  what is missing.
-- **Enforce limits with parameters, not prompts.** The original asked the model
-  to "complete the responses in 100 tokens", which a model is free to ignore.
-  `max_tokens` enforces the ceiling, while the prompt asks for an answer that
-  *fits* inside it — without both, replies truncate mid-sentence.
+Because generation happens in the function rather than the browser, there is no
+credential in the client bundle and none in the repository.
 
 ## A note on accuracy
 
